@@ -138,7 +138,7 @@ frame.pack(pady=5)
 
 tk.Button(frame, text="Load Board", command=loadBoard).pack(side=tk.LEFT, padx=5)
 tk.Button(frame, text="Solve", command=solve).pack(side=tk.LEFT, padx=5)
-tk.Button(frame, text="Save", command=solve).pack(side=tk.LEFT, padx=5)
+tk.Button(frame, text="Save", command=saveOutput).pack(side=tk.LEFT, padx=5)
 
 myKisah.mainloop()
 # ===============================================================
