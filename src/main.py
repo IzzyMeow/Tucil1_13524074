@@ -29,6 +29,9 @@ def saveOutput():
         input = os.path.basename(inputFileName)
         fileName = os.path.splitext(input)[0]
         output_path = f"../test/{fileName}_solusi.txt"
+    else:
+        output_path = "../test/output.txt"
+    
     with open(output_path, "w") as output:
         for i in range(ukuranBoard):
             for j in range(ukuranBoard):
