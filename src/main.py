@@ -135,7 +135,7 @@ def solveHelper(x):
     global iterations
     if x == ukuranBoard:
         iterations += 1
-        if iterations % (ukuranBoard ** ((ukuranBoard//2) + (ukuranBoard//4)) + 67) == 0:
+        if iterations % (10 ** (ukuranBoard//2) + 67) == 0:
             draw()
             myKisah.update()
         if safe():
