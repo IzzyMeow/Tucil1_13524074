@@ -1,19 +1,22 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import time
+import os
 
 cellSize = 67
 board = []
 queen = []
 ukuranBoard = 0
 iterations = 0
+inputFileName = ""
 
 # ===============================================================
 def loadBoard():
-    global board, ukuranBoard, queen
+    global board, ukuranBoard, queen, inputFileName
     path = filedialog.askopenfilename(filetypes=[("SixSeven", "*.txt")])
     if not path:
         return
+    inputFileName = path
     with open(path) as input:
         board = [list(line.strip()) for line in input if line.strip()]
     ukuranBoard = len(board)
@@ -22,7 +25,11 @@ def loadBoard():
     draw()
 
 def saveOutput():
-    with open("../test/output.txt", "w") as output:
+    if inputFileName:
+        input = os.path.basename(inputFileName)
+        fileName = os.path.splitext(input)[0]
+        output_path = f"../test/{fileName}_solusi.txt"
+    with open(output_path, "w") as output:
         for i in range(ukuranBoard):
             for j in range(ukuranBoard):
                 if queen[i] == j:
@@ -30,6 +37,7 @@ def saveOutput():
                 else:
                     output.write(board[i][j])
             output.write("\n")
+    messagebox.showinfo("Saved", f"Tersimpan dengan nama file {output_path}")
 # ===============================================================
 
 # ===============================================================
@@ -83,34 +91,40 @@ def draw():
             canvas.create_rectangle(x1, y1, x2, y2, fill=colors[alphabet], outline="#f8c414")
             if queen[i] == j:
                 canvas.create_text(x1 + cellSize//2, y1 + cellSize//2, text="#", font=("Arial", 20)) # menampilkan queen
-    myKisah.update()
+    myKisah.update_idletasks()
 # ===============================================================
 
 # ===============================================================
-def safe(x, i):
-    for j in range(x):
-        if queen[j] == i: # di kolom yang sama
-            return False
-        if abs(j - x) == 1 and abs(queen[j] - i) == 1: # di diagonal yang sama
-            return False
-        if board[j][queen[j]] == board[x][i]:  # di warna yang sama
-            return False
+def safe():
+    for i in range(ukuranBoard):
+        for j in range(i + 1, ukuranBoard):
+            if queen[i] == queen[j]: # di kolom yang sama
+                return False
+            if abs(i - j) == 1 and abs(queen[i] - queen[j]) == 1: # bertetangga
+                return False
+            if board[i][queen[i]] == board[j][queen[j]]: # di warna yang sama
+                return False
     return True
 
 def solveHelper(x):
     global iterations
     if x == ukuranBoard:
-        return True
+        iterations += 1
+        update_freq = (ukuranBoard ** ((ukuranBoard//2) + 2)) + 67
+        if iterations % update_freq == 0:
+            draw()
+            myKisah.update()
+        if safe():
+            draw()  # Solusi akhir
+            return True
+        return False
     
     for i in range(ukuranBoard):
-        iterations += 1
-        if safe(x, i):
-            queen[x] = i
-            draw()
-            if solveHelper(x + 1):
-                return True
-            queen[x] = -1
-            draw()
+        queen[x] = i
+        if solveHelper(x + 1):
+            return True
+        queen[x] = -1
+    
     return False
 
 def solve():
