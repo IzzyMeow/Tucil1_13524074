@@ -9,11 +9,12 @@ queen = []
 ukuranBoard = 0
 iterations = 0
 inputFileName = ""
+colorMap = {}
 # Bernhard Aprillio Pramana - 13524074
 
 # ===============================================================
 def loadBoard():
-    global board, ukuranBoard, queen, inputFileName
+    global board, ukuranBoard, queen, inputFileName, colorMap
     path = filedialog.askopenfilename(filetypes=[("SixSeven", "*.txt")])
     if not path:
         return
@@ -23,6 +24,30 @@ def loadBoard():
     ukuranBoard = len(board)
     queen = [-1] * ukuranBoard
     canvas.config(width=ukuranBoard*cellSize, height=ukuranBoard*cellSize)
+    colors = set(cell for row in board for cell in row)
+    if len(colors) > ukuranBoard:
+        messagebox.showerror("Invalid Board", f"Papan tidak valid: {len(colors)} region > ukuran papan {ukuranBoard}")
+        board = []
+        ukuranBoard = 0
+        queen = []
+        inputFileName = ""
+        colorMap = {}
+        return
+    for color in colors:
+        if not ColorCheck(color):
+            messagebox.showerror("Invalid Board", "Papan tidak valid: region tidak terhubung")
+            board = []
+            ukuranBoard = 0
+            queen = []
+            inputFileName = ""
+            colorMap = {}
+            return
+    colorMap = {}
+    for alphabet in colors:
+        idx = ord(alphabet) - ord('A')
+        color = (idx * 67) % 360
+        r, g, b = coloring(color)
+        colorMap[alphabet] = f"#{r:02x}{g:02x}{b:02x}"
     draw()
 
 def saveOutput():
@@ -93,29 +118,13 @@ def coloring(x):
 
 def draw():
     canvas.delete("all")
-    colors = {}
     for i in range(ukuranBoard):
         for j in range(ukuranBoard):
             alphabet = board[i][j]
-            if alphabet not in colors:
-                idx = ord(alphabet) - ord('A')
-                color = (idx * 67) % 360
-                r, g, b = coloring(color)
-                colors[alphabet] = f"#{r:02x}{g:02x}{b:02x}" # ubah ke hex
-            
             x1, y1 = j * cellSize, i * cellSize
-            canvas.create_rectangle(x1, y1, x1 + cellSize, y1 + cellSize, fill=colors[alphabet], outline="#f8c414") # hehehehehe yhose who know
+            canvas.create_rectangle(x1, y1, x1 + cellSize, y1 + cellSize, fill=colorMap.get(alphabet, "#ffffff"), outline="#f8c414") # hehehehehe those who know
             if queen[i] == j:
                 canvas.create_text(x1 + cellSize//2, y1 + cellSize//2, text="#", font=("Arial", 20))
-    
-    if all(q == -1 for q in queen):
-        if len(colors) > ukuranBoard:
-            messagebox.showerror("Invalid Board", f"Papan tidak valid: {len(colors)} region > ukuran papan {ukuranBoard}")
-        for color in colors:
-            if not ColorCheck(color):
-                messagebox.showerror("Invalid Board", f"Papan tidak valid: region tidak terhubung")
-                break
-    
     myKisah.update_idletasks()
 # ===============================================================
 
@@ -135,7 +144,7 @@ def solveHelper(x):
     global iterations
     if x == ukuranBoard:
         iterations += 1
-        if iterations % (10 ** (ukuranBoard//2) + 67) == 0:
+        if iterations % (10 ** (ukuranBoard//2 + 1) + 67) == 0:
             draw()
             myKisah.update()
         if safe():
