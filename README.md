@@ -1,6 +1,6 @@
 # Penyelesaian Permainan Queens Linkedin
 
-Program dibuat menggunakan Python berbasis GUI (Tkinter) untuk menyelesaikan permainan Queens Linkedin. Program menggunakan algoritma bruteforce backtracking dan menampilkan live update.
+Program dibuat menggunakan Python berbasis GUI (Tkinter) untuk menyelesaikan permainan Queens Linkedin. Program menggunakan algoritma bruteforce murni dan menampilkan live update.
 
 ## Requirement & Installation
 - Python 3.13

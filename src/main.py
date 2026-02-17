@@ -33,15 +33,6 @@ def loadBoard():
         inputFileName = ""
         colorMap = {}
         return
-    for color in colors:
-        if not ColorCheck(color):
-            messagebox.showerror("Invalid Board", "Papan tidak valid: region tidak terhubung")
-            board = []
-            ukuranBoard = 0
-            queen = []
-            inputFileName = ""
-            colorMap = {}
-            return
     colorMap = {}
     for alphabet in colors:
         idx = ord(alphabet) - ord('A')
@@ -72,21 +63,6 @@ def saveOutput():
 # ===============================================================
 
 # ===============================================================
-def ColorCheck(color):
-    cells = [(i, j) for i in range(ukuranBoard) for j in range(ukuranBoard) if board[i][j] == color]
-    if not cells:
-        return True
-    visited = {cells[0]}
-    queue = [cells[0]]
-    for i, j in queue:
-        for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            ni, nj = i + di, j + dj
-            if (ni, nj) not in visited and (ni, nj) in cells:
-                visited.add((ni, nj))
-                queue.append((ni, nj))
-    
-    return len(visited) == len(cells)
-
 def coloring(x):
     x %= 360
     target = 1 - abs((x / 60) % 2 - 1)
@@ -125,7 +101,7 @@ def draw():
             canvas.create_rectangle(x1, y1, x1 + cellSize, y1 + cellSize, fill=colorMap.get(alphabet, "#ffffff"), outline="#f8c414") # hehehehehe those who know
             if queen[i] == j:
                 canvas.create_text(x1 + cellSize//2, y1 + cellSize//2, text="#", font=("Arial", 20))
-    myKisah.update_idletasks()
+    myKisah.update()
 # ===============================================================
 
 # ===============================================================
@@ -144,11 +120,12 @@ def solveHelper(x):
     global iterations
     if x == ukuranBoard:
         iterations += 1
-        if iterations % (10 ** (ukuranBoard//2 + 1) + 67) == 0:
+        freqency = 10 ** (ukuranBoard // 2 + 2)
+        finalFreq = freqency * (1 + iterations // (10 ** ukuranBoard)) + 67
+        if iterations % max(1000, int(finalFreq)) == 0:
             draw()
             myKisah.update()
         if safe():
-            draw()
             return True
         return False
     
@@ -165,6 +142,8 @@ def solve():
     start = time.time()
     found = solveHelper(0)
     elapsed = int((time.time() - start) * 1000)
+    if found:
+        draw()
     status = "ditemukan" if found else "tidak ditemukan"
     messagebox.showinfo("Hasil", f"Solusi {status}\nWaktu: {elapsed} ms\nIterasi: {iterations}")
 # ===============================================================
