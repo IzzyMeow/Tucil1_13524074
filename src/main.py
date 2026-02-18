@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import time
 import os
 
-cellSize = 67
+cellSize = 67*10
 board = []
 queen = []
 ukuranBoard = 0
@@ -23,7 +23,7 @@ def loadBoard():
         board = [list(line.strip()) for line in input if line.strip()]
     ukuranBoard = len(board)
     queen = [-1] * ukuranBoard
-    canvas.config(width=ukuranBoard*cellSize, height=ukuranBoard*cellSize)
+    canvas.config(width=ukuranBoard*(cellSize//ukuranBoard), height=ukuranBoard*(cellSize//ukuranBoard))
     colors = set(cell for row in board for cell in row)
     if len(colors) > ukuranBoard:
         messagebox.showerror("Invalid Board", f"Papan tidak valid: {len(colors)} region > ukuran papan {ukuranBoard}")
@@ -97,10 +97,10 @@ def draw():
     for i in range(ukuranBoard):
         for j in range(ukuranBoard):
             alphabet = board[i][j]
-            x1, y1 = j * cellSize, i * cellSize
-            canvas.create_rectangle(x1, y1, x1 + cellSize, y1 + cellSize, fill=colorMap.get(alphabet, "#ffffff"), outline="#f8c414") # hehehehehe those who know
+            x1, y1 = j * (cellSize//ukuranBoard), i * (cellSize//ukuranBoard)
+            canvas.create_rectangle(x1, y1, x1 + (cellSize//ukuranBoard), y1 + (cellSize//ukuranBoard), fill=colorMap.get(alphabet, "#ffffff"), outline="#f8c414") # hehehehehe those who know
             if queen[i] == j:
-                canvas.create_text(x1 + cellSize//2, y1 + cellSize//2, text="#", font=("Arial", 20))
+                canvas.create_text(x1 + (cellSize//ukuranBoard)//2, y1 + (cellSize//ukuranBoard)//2, text="#", font=("Arial", (200//ukuranBoard)), fill="black")
     myKisah.update()
 # ===============================================================
 
@@ -120,9 +120,11 @@ def solveHelper(x):
     global iterations
     if x == ukuranBoard:
         iterations += 1
-        freqency = 10 ** (ukuranBoard // 2 + 2)
-        finalFreq = freqency * (1 + iterations // (10 ** ukuranBoard)) + 67
-        if iterations % max(1000, int(finalFreq)) == 0:
+        if ukuranBoard <= 6:
+            finalFreq = 10
+        if ukuranBoard > 6:
+            finalFreq = (10 ** (ukuranBoard // 2 + 2)) * (1 + iterations // (10 ** ukuranBoard)) + 67
+        if iterations % int(finalFreq) == 0:
             draw()
             myKisah.update()
         if safe():
